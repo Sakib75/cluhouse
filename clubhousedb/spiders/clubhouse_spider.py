@@ -1,7 +1,7 @@
 import scrapy
 import pandas as pd
 import csv
-from selenium.webdriver import Chrome
+from selenium.webdriver import Chrome,Firefox 
 from bs4 import BeautifulSoup
 import re
 from selenium.webdriver.chrome.options import Options
@@ -10,9 +10,10 @@ import json
 class TspSpider(scrapy.Spider):
     name = 'clubhouse_spider'
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = Chrome(options=chrome_options)
+    # chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    # driver = Chrome(options=chrome_options)
+    driver = Firefox()
 
     def __init__(self, input_file='', **kwargs):
         self.input_file_name = input_file
