@@ -10,9 +10,12 @@ import json
 class TspSpider(scrapy.Spider):
     name = 'clubhouse_spider'
 
+
     # chrome_options = Options()
     # chrome_options.add_argument("--headless")
     # driver = Chrome(options=chrome_options)
+    # driver = Chrome()
+
     driver = Firefox()
 
     def __init__(self, input_file='', **kwargs):
@@ -29,8 +32,8 @@ class TspSpider(scrapy.Spider):
                     url = 'https://www.clubhousedb.com/user/' + username
             if('/user/' in url):
                 yield scrapy.Request(url=url, callback=self.parse_data)
-            if('/club/' in url):
-                yield scrapy.Request(url=url, callback=self.parse_data)
+            # if('/club/' in url):
+            #     yield scrapy.Request(url=url, callback=self.parse_data)
         
         # yield scrapy.Request(url="https://clubhousedb.com/club/156-human-behaviour", callback=self.parse_data)
 
@@ -43,7 +46,10 @@ class TspSpider(scrapy.Spider):
             f['username'] = response.xpath("//div[contains(@class,'username')]/span[1]/text()").get()
         elif('/club/' in response.request.url):
             f['type'] = 'Club'
-            f['username'] = response.xpath("//h1/text()").get().replace("on Clubhouse",'').strip()
+            try:
+                f['username'] = response.xpath("//h1/text()").get().replace("on Clubhouse",'').strip()
+            except:
+                f['username'] = ''
         f['image'] = response.xpath("//div[@class='img-col']/img/@src").get()
         f['desc'] = "\n".join(response.xpath("//section[@class='user-bio']/p//text()").getall())
         if('[email\xa0protected]' in f['desc']):
