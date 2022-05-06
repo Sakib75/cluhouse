@@ -11,27 +11,40 @@ class TspSpider(scrapy.Spider):
     name = 'clubhouse_spider'
 
 
-    # chrome_options = Options()
-    # chrome_options.add_argument("--headless")
-    # driver = Chrome(options=chrome_options)
-    # driver = Chrome()
+    chrome_options = Options()
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    driver = Chrome(chrome_options=chrome_options)
 
-    driver = Firefox()
+
+    # driver = Firefox()
 
     def __init__(self, input_file='', **kwargs):
         self.input_file_name = input_file
 
     def start_requests(self):
         df = pd.read_csv(self.input_file_name)
+        users = []
         for i in range(0,len(df)):
             data = df.loc[[i]].to_dict()
             url = df.loc[i,'url']
+
+            
             if(str(url) == 'nan'):
                 username = list(data['photo_url'].values())[0]
                 if(str(username) != 'nan'):
                     url = 'https://www.clubhousedb.com/user/' + username
-            if('/user/' in url):
-                yield scrapy.Request(url=url, callback=self.parse_data)
+                    yield scrapy.Request(url=url, callback=self.parse_data)
+            elif('/user/' in url):
+                    yield scrapy.Request(url=url, callback=self.parse_data)
+            # elif('/club/' in url):
+            #         yield scrapy.Request(url=url, callback=self.parse_data)
+        print(len(users))
+        print('----------')
+
+                
             # if('/club/' in url):
             #     yield scrapy.Request(url=url, callback=self.parse_data)
         
