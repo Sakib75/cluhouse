@@ -11,15 +11,15 @@ class TspSpider(scrapy.Spider):
     name = 'clubhouse_spider'
 
 
-    chrome_options = Options()
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    driver = Chrome(chrome_options=chrome_options)
+    # chrome_options = Options()
+    # chrome_options = Options()
+    # chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--no-sandbox')
+    # chrome_options.add_argument('--disable-dev-shm-usage')
+    # driver = Chrome(chrome_options=chrome_options)
 
 
-    # driver = Firefox()
+    driver = Firefox()
 
     def __init__(self, input_file='', **kwargs):
         self.input_file_name = input_file
@@ -28,19 +28,24 @@ class TspSpider(scrapy.Spider):
         df = pd.read_csv(self.input_file_name)
         users = []
         for i in range(0,len(df)):
+            pid = df.loc[i,'club_id']
+            name = df.loc[i,'name']
+
+            
             data = df.loc[[i]].to_dict()
             url = df.loc[i,'url']
-
             
             if(str(url) == 'nan'):
                 username = list(data['photo_url'].values())[0]
                 if(str(username) != 'nan'):
                     url = 'https://www.clubhousedb.com/user/' + username
-                    yield scrapy.Request(url=url, callback=self.parse_data)
+                    yield scrapy.Request(url=url, callback=self.parse_data,meta={'club_id':pid,'name':name})
             elif('/user/' in url):
+                    yield scrapy.Request(url=url, callback=self.parse_data,meta={'club_id':pid,'name':name})
+            elif('/club/' in url):
                     yield scrapy.Request(url=url, callback=self.parse_data)
-            # elif('/club/' in url):
-            #         yield scrapy.Request(url=url, callback=self.parse_data)
+
+            # input()
         print(len(users))
         print('----------')
 
@@ -52,6 +57,8 @@ class TspSpider(scrapy.Spider):
 
     def parse_data(self, response):
         f = dict()
+        f['club_id'] = response.request.meta['club_id']
+        f['name'] = response.request.meta['name']
         f['url'] = response.request.url
 
         if('/user/' in response.request.url):
@@ -63,6 +70,8 @@ class TspSpider(scrapy.Spider):
                 f['username'] = response.xpath("//h1/text()").get().replace("on Clubhouse",'').strip()
             except:
                 f['username'] = ''
+        f['follower'] = response.xpath("//span[contains(text(),'Following')]/parent::div/span[1]/text()").get()
+        f['following'] = response.xpath("//span[contains(text(),'Follower')]/parent::div/span[1]/text()").get()
         f['image'] = response.xpath("//div[@class='img-col']/img/@src").get()
         f['desc'] = "\n".join(response.xpath("//section[@class='user-bio']/p//text()").getall())
         if('[email\xa0protected]' in f['desc']):
