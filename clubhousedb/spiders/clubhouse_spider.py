@@ -76,7 +76,7 @@ class TspSpider(scrapy.Spider):
         f['following'] = response.xpath("//span[contains(text(),'Follower')]/parent::div/span[1]/text()").get()
         f['image'] = response.xpath("//div[@class='img-col']/img/@src").get()
         if(f['image'] == None):
-            f['image'] = response.xpath("//div[@class='ml-1']/img/@src").get()
+            f['image'] = response.xpath("//div[@class='w-18 h-18 sm:w-20 sm:h-20 bg-gray-200 mx-auto bg-center bg-cover border border-gray-400 rounded-ch']/@style").get().split('url(\'')[-1][0:-2]
         f['desc'] = "\n".join(response.xpath("//section[@class='user-bio']/p//text()").getall()).strip()
         if('[email\xa0protected]' in f['desc']):
             self.driver.get(response.request.url)
