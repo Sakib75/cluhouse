@@ -11,7 +11,7 @@ BOT_NAME = 'clubhousedb'
 
 SPIDER_MODULES = ['clubhousedb.spiders']
 NEWSPIDER_MODULE = 'clubhousedb.spiders'
-FEED_EXPORT_FIELDS = ['club_id','name','username','url','type',	'follower','following','image',	'desc',	'email'	,'insta',	'twitter'	,'ref',	'ref_link',	'Some Club Members',	'More Clubs', 'Member of',	'More Clubhouse users']
+FEED_EXPORT_FIELDS = ['club_id','name','username','url','type',	'members','follower','following','image',	'desc',	'email'	,'insta',	'twitter'	,'ref',	'ref_link',	'Some Club Members',	'More Clubs', 'Member of',	'More Clubhouse users']
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'

@@ -53,7 +53,7 @@ class TspSpider(scrapy.Spider):
             # if('/club/' in url):
             #     yield scrapy.Request(url=url, callback=self.parse_data)
         
-        # yield scrapy.Request(url="https://clubhousedb.com/club/156-human-behaviour", callback=self.parse_data)
+        # yield scrapy.Request(url="https://www.clubhouse.com/club/startupclub", callback=self.parse_data)
 
     def parse_data(self, response):
         f = dict()
@@ -70,10 +70,14 @@ class TspSpider(scrapy.Spider):
                 f['username'] = response.xpath("//h1/text()").get().replace("on Clubhouse",'').strip()
             except:
                 f['username'] = ''
+        if(f['username'] == ''):
+            f['username'] = response.request.url.split('/')[-1].strip()
         f['follower'] = response.xpath("//span[contains(text(),'Following')]/parent::div/span[1]/text()").get()
         f['following'] = response.xpath("//span[contains(text(),'Follower')]/parent::div/span[1]/text()").get()
         f['image'] = response.xpath("//div[@class='img-col']/img/@src").get()
-        f['desc'] = "\n".join(response.xpath("//section[@class='user-bio']/p//text()").getall())
+        if(f['image'] == None):
+            f['image'] = response.xpath("//div[@class='ml-1']/img/@src").get()
+        f['desc'] = "\n".join(response.xpath("//section[@class='user-bio']/p//text()").getall()).strip()
         if('[email\xa0protected]' in f['desc']):
             self.driver.get(response.request.url)
             desc = self.driver.find_elements_by_xpath("//section[@class='user-bio']/p")
@@ -87,12 +91,18 @@ class TspSpider(scrapy.Spider):
             f['email'] = email
         else:
             f['email'] = ''
+        
+        if(f['desc'] == ''):
+            f['desc'] = "\n".join(response.xpath("//div[@class='w-full mt-5 sm:mt-1 text-sm sm:text-md text-gray-800']//text()").getall())
         f['insta'] = "".join(response.xpath("//*[name()='use' and @*='#instagram']/ancestor::span[1]/text()").getall())
         f['twitter'] = "".join(response.xpath("//*[name()='use' and @*='#twitter']/ancestor::span[1]/text()").getall())
         f['ref'] = response.xpath("//p[contains(text(),'Invited by: ')]/a/text()").get()
         f['ref_link'] = response.xpath("//p[contains(text(),'Invited by: ')]/a/@href").get()
         sections = response.xpath("//section[@class='user-clubs']")
-
+        try:
+            f['members'] = response.xpath("//div[@class='w-full text-center mt-3 text-sm sm:text-md font-semibold']/text()").get().strip()
+        except:
+            f['members'] = ''
         for section in sections:
             users = section.xpath("./div/div/a")
             heading = section.xpath("./preceding-sibling::h2[1]/text()").get()
