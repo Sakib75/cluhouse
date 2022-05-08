@@ -11,15 +11,15 @@ class TspSpider(scrapy.Spider):
     name = 'clubhouse_spider'
 
 
-    # chrome_options = Options()
-    # chrome_options = Options()
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument('--no-sandbox')
-    # chrome_options.add_argument('--disable-dev-shm-usage')
-    # driver = Chrome(chrome_options=chrome_options)
+    chrome_options = Options()
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    driver = Chrome(chrome_options=chrome_options)
 
 
-    driver = Firefox()
+    # driver = Firefox()
 
     def __init__(self, input_file='', **kwargs):
         self.input_file_name = input_file
@@ -31,7 +31,7 @@ class TspSpider(scrapy.Spider):
             pid = df.loc[i,'club_id']
             name = df.loc[i,'name']
 
-            
+
             data = df.loc[[i]].to_dict()
             url = df.loc[i,'url']
             
@@ -43,7 +43,7 @@ class TspSpider(scrapy.Spider):
             elif('/user/' in url):
                     yield scrapy.Request(url=url, callback=self.parse_data,meta={'club_id':pid,'name':name})
             elif('/club/' in url):
-                    yield scrapy.Request(url=url, callback=self.parse_data)
+                    yield scrapy.Request(url=url, callback=self.parse_data,meta={'club_id':pid,'name':name})
 
             # input()
         print(len(users))
